@@ -41,16 +41,17 @@ public class DaRPCServiceDispatcher extends DaRPCNameNodeProtocol implements DaR
 	private static final Logger LOG = CrailUtils.getLogger();
 	
 	private RpcNameNodeService service;
+
+	protected AtomicLong totalOps;
+	protected AtomicLong createOps;
+	protected AtomicLong lookupOps;
+	protected AtomicLong setOps;
+	protected AtomicLong removeOps;
+	protected AtomicLong renameOps;
+	protected AtomicLong getOps;
+	protected AtomicLong locationOps;
+	protected AtomicLong errorOps;
 	
-	private AtomicLong totalOps;
-	private AtomicLong createOps;
-	private AtomicLong lookupOps;
-	private AtomicLong setOps;
-	private AtomicLong removeOps;
-	private AtomicLong renameOps;
-	private AtomicLong getOps;
-	private AtomicLong locationOps;
-	private AtomicLong errorOps;
 	
 	public DaRPCServiceDispatcher(RpcNameNodeService service){
 		this.service = service;
@@ -75,38 +76,24 @@ public class DaRPCServiceDispatcher extends DaRPCNameNodeProtocol implements DaR
 			response.setError((short) 0);
 			switch(request.getCmd()) {
 			case RpcProtocol.CMD_CREATE_FILE:
-				this.totalOps.incrementAndGet();
-				this.createOps.incrementAndGet();
 				error = service.createFile(request.createFile(), response.createFile(), response);
 				break;			
 			case RpcProtocol.CMD_GET_FILE:
-				this.totalOps.incrementAndGet();
-				this.lookupOps.incrementAndGet();
 				error = service.getFile(request.getFile(), response.getFile(), response);
 				break;
 			case RpcProtocol.CMD_SET_FILE:
-				this.totalOps.incrementAndGet();
-				this.setOps.incrementAndGet();
 				error = service.setFile(request.setFile(), response.getVoid(), response);
 				break;
 			case RpcProtocol.CMD_REMOVE_FILE:
-				this.totalOps.incrementAndGet();
-				this.removeOps.incrementAndGet();
 				error = service.removeFile(request.removeFile(), response.delFile(), response);
 				break;				
 			case RpcProtocol.CMD_RENAME_FILE:
-				this.totalOps.incrementAndGet();
-				this.renameOps.incrementAndGet();
 				error = service.renameFile(request.renameFile(), response.getRename(), response);
 				break;		
 			case RpcProtocol.CMD_GET_BLOCK:
-				this.totalOps.incrementAndGet();
-				this.getOps.incrementAndGet();
 				error = service.getBlock(request.getBlock(), response.getBlock(), response);
 				break;
 			case RpcProtocol.CMD_GET_LOCATION:
-				this.totalOps.incrementAndGet();
-				this.locationOps.incrementAndGet();
 				error = service.getLocation(request.getLocation(), response.getLocation(), response);
 				break;				
 			case RpcProtocol.CMD_SET_BLOCK:

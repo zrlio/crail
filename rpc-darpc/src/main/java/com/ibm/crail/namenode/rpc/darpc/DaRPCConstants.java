@@ -55,6 +55,21 @@ public class DaRPCConstants {
 	public static final String NAMENODE_DARPC_CLUSTERSIZE_KEY = "crail.namenode.darpc.clustersize";
 	public static int NAMENODE_DARPC_CLUSTERSIZE = 128;	
 	
+	public static final String NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH_KEY = "crail.namenode.darpc.mempool.hugepagepath";
+	public static String NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH = null;
+
+	public static final String NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT_KEY = "crail.namenode.darpc.mempool.hugepagelimit";
+	public static int NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT = 0; //disabled by default
+
+	public static final String NAMENODE_DARPC_MEMPOOL_ALLOCSZ_KEY = "crail.namenode.darpc.mempool.minallocationsize";
+	public static int NAMENODE_DARPC_MEMPOOL_ALLOCSZ = 16 * 1024 * 1024; //16MB
+
+	public static final String NAMENODE_DARPC_MEMPOOL_MINALLOCSZ_KEY = "crail.namenode.darpc.mempool.minallocationsize";
+	public static int NAMENODE_DARPC_MEMPOOL_MINALLOCSZ = 4 * 1024; //4kB
+
+	public static final String NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY = "crail.namenode.darpc.mempool.alignment";
+	public static int NAMENODE_DARPC_MEMPOOL_ALIGNMENT = 4 * 1024; //4kB
+
 	public static void updateConstants(CrailConfiguration conf){
 		if (conf.get(NAMENODE_DARPC_POLLING_KEY) != null) {
 			NAMENODE_DARPC_POLLING = conf.getBoolean(NAMENODE_DARPC_POLLING_KEY, false);
@@ -80,6 +95,21 @@ public class DaRPCConstants {
 		if (conf.get(NAMENODE_DARPC_CLUSTERSIZE_KEY) != null) {
 			NAMENODE_DARPC_CLUSTERSIZE = Integer.parseInt(conf.get(NAMENODE_DARPC_CLUSTERSIZE_KEY));
 		}					
+		if (conf.get(NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH_KEY) != null) {
+			NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH = conf.get(NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH_KEY);
+		}
+		if (conf.get(NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT_KEY) != null) {
+			NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT = Integer.parseInt(conf.get(NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT_KEY));
+		}
+		if (conf.get(NAMENODE_DARPC_MEMPOOL_ALLOCSZ_KEY) != null) {
+			NAMENODE_DARPC_MEMPOOL_ALLOCSZ = Integer.parseInt(conf.get(NAMENODE_DARPC_MEMPOOL_ALLOCSZ_KEY));
+		}
+		if (conf.get(NAMENODE_DARPC_MEMPOOL_MINALLOCSZ_KEY) != null) {
+			NAMENODE_DARPC_MEMPOOL_MINALLOCSZ = Integer.parseInt(conf.get(NAMENODE_DARPC_MEMPOOL_MINALLOCSZ_KEY));
+		}
+		if (conf.get(NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY) != null) {
+			NAMENODE_DARPC_MEMPOOL_ALIGNMENT = Integer.parseInt(conf.get(NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY));
+		}
 	}
 	
 	public static void verify() throws IOException {
@@ -97,5 +127,10 @@ public class DaRPCConstants {
 		LOG.info(NAMENODE_DARPC_SENDQUEUE_KEY + " " + NAMENODE_DARPC_SENDQUEUE);
 		LOG.info(NAMENODE_DARPC_POLLSIZE_KEY + " " + NAMENODE_DARPC_POLLSIZE);
 		LOG.info(NAMENODE_DARPC_CLUSTERSIZE_KEY + " " + NAMENODE_DARPC_CLUSTERSIZE);
+		LOG.info(NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH_KEY + " " + NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH);
+		LOG.info(NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT_KEY + " " + NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT);
+		LOG.info(NAMENODE_DARPC_MEMPOOL_ALLOCSZ_KEY + " " + NAMENODE_DARPC_MEMPOOL_ALLOCSZ);
+		LOG.info(NAMENODE_DARPC_MEMPOOL_MINALLOCSZ_KEY + " " + NAMENODE_DARPC_MEMPOOL_MINALLOCSZ);
+		LOG.info(NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY + " " + NAMENODE_DARPC_MEMPOOL_ALIGNMENT);
 	}	
 }

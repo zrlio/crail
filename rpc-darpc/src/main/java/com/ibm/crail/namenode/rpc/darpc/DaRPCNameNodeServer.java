@@ -9,6 +9,7 @@ import com.ibm.crail.conf.CrailConfiguration;
 import com.ibm.crail.rpc.RpcNameNodeService;
 import com.ibm.crail.rpc.RpcServer;
 import com.ibm.crail.utils.CrailUtils;
+import com.ibm.darpc.DaRPCMemPool;
 import com.ibm.darpc.DaRPCServerEndpoint;
 import com.ibm.darpc.DaRPCServerGroup;
 import com.ibm.disni.rdma.RdmaServerEndpoint;
@@ -30,6 +31,13 @@ public class DaRPCNameNodeServer extends RpcServer {
 		DaRPCConstants.updateConstants(conf);
 		DaRPCConstants.verify();
 		
+		DaRPCMemPool memPool = new DaRPCMemPool(DaRPCConstants.NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH,
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT,
+			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOCSZ,
+			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_MINALLOCSZ,
+			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT
+			    );
+
 		String _clusterAffinities[] = DaRPCConstants.NAMENODE_DARPC_AFFINITY.split(",");
 		long clusterAffinities[] = new long[_clusterAffinities.length];
 		for (int i = 0; i < clusterAffinities.length; i++){
@@ -37,7 +45,7 @@ public class DaRPCNameNodeServer extends RpcServer {
 			clusterAffinities[i] = 1L << affinity;
 		}
 		DaRPCServiceDispatcher darpcService = new DaRPCServiceDispatcher(service);
-		this.namenodeServerGroup = DaRPCServerGroup.createServerGroup(darpcService, clusterAffinities, -1, DaRPCConstants.NAMENODE_DARPC_MAXINLINE, DaRPCConstants.NAMENODE_DARPC_POLLING, DaRPCConstants.NAMENODE_DARPC_RECVQUEUE, DaRPCConstants.NAMENODE_DARPC_SENDQUEUE, DaRPCConstants.NAMENODE_DARPC_POLLSIZE, DaRPCConstants.NAMENODE_DARPC_CLUSTERSIZE);
+		this.namenodeServerGroup = DaRPCServerGroup.createServerGroup(darpcService, memPool, clusterAffinities, -1, DaRPCConstants.NAMENODE_DARPC_MAXINLINE, DaRPCConstants.NAMENODE_DARPC_POLLING, DaRPCConstants.NAMENODE_DARPC_RECVQUEUE, DaRPCConstants.NAMENODE_DARPC_SENDQUEUE, DaRPCConstants.NAMENODE_DARPC_POLLSIZE, DaRPCConstants.NAMENODE_DARPC_CLUSTERSIZE);
 		LOG.info("rpc group started, recvQueue " + namenodeServerGroup.recvQueueSize());
 		this.namenodeServerEp = namenodeServerGroup.createServerEndpoint();		
 	}

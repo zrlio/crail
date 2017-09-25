@@ -61,6 +61,8 @@ public class HdfsIOBenchmark {
 			readRandomHeap();
 		} else if (mode.equals("getFile")){
 			getFile();
+		} else if (mode.equals("getFileIOPS")){
+			getFileIOPS();
 		} else if (mode.equals("createFile")){
 			createFile();
 		} else if (mode.equals("enumerateDir")){
@@ -77,7 +79,7 @@ public class HdfsIOBenchmark {
 
 	public static void usage(){
 		System.out.println("Usage:");
-		System.out.println("hdfsbench <readSequentialDirect|readSequentialHeap|readRandomDirect|readRandomHeap|writeSequentialHeap> <size> <iterations> <path>");
+		System.out.println("hdfsbench <readSequentialDirect|readSequentialHeap|readRandomDirect|readRandomHeap|writeSequentialHeap|getFile|getFileIOPS> <size> <iterations> <path>");
 	}	
 	
 	public void writeSequentialHeap() throws Exception {
@@ -342,6 +344,24 @@ public class HdfsIOBenchmark {
 		fs.close();
 	}	
 	
+	void getFileIOPS() throws Exception, InterruptedException {
+		System.out.println("get file IOPS, path " + path + ", loop " + loop);
+		Configuration conf = new Configuration();
+		FileSystem fs = FileSystem.get(conf);
+
+		long start = System.currentTimeMillis();
+		//single operation == loop
+		for (int j = 0; j < loop; j++){
+			fs.listStatus(path);
+		}
+		long end = System.currentTimeMillis();
+		double iops = ((double)loop) / (end - start) * (double)1000.0;
+		double executionTime = ((double) (end - start));
+		System.out.println("execution time [ms] " + executionTime +
+				" operations = " + loop + " IOPS = " + String.format("%.2f", iops));
+		fs.close();
+	}
+
 	void createFile() throws Exception, InterruptedException {
 		System.out.println("create file async hdfs, path " + path + ", size " + size + ", loop " + loop);
 		Configuration conf = new Configuration();
