@@ -21,70 +21,48 @@
 
 package com.ibm.crail.namenode.rpc.darpc;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 
+import com.ibm.crail.rpc.RpcErrors;
 import com.ibm.crail.rpc.RpcNameNodeService;
+import com.ibm.crail.rpc.RpcNameNodeState;
 import com.ibm.crail.rpc.RpcProtocol;
+import com.ibm.crail.rpc.RpcRequestMessage;
+import com.ibm.crail.rpc.RpcResponseMessage;
 import com.ibm.crail.utils.CrailUtils;
 import com.ibm.darpc.DaRPCServerEvent;
 
-class CounterThread extends Thread {
-	public void run() {
-		long oldsum = 0;
-		long sum = 0;
-		long oldtime = System.currentTimeMillis();
-		long currTime;
-		while (true) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			for (int i = 0; i < DaRPCServiceDispatcherStats.counts.length; i++) {
-				sum += DaRPCServiceDispatcherStats.counts[i];
-			}
-			currTime = System.currentTimeMillis();
-			System.out.println("Statistics: "
-					+ String.format("%.2f", (double)(sum - oldsum)/((double)(currTime - oldtime))*(double)1000.0) + " IOPS"
-					+ ", diff: " + (sum - oldsum)
-					+ ", time diff(ms): " + (currTime - oldtime));
-			oldtime = currTime;
-			oldsum = sum;
-			sum = 0;
-		}
-	}
-}
-
-
-
 public class DaRPCServiceDispatcherStats extends DaRPCServiceDispatcher {
 	private static final Logger LOG = CrailUtils.getLogger();
-	private static final int maxNrThreads = 200;
 
-	public static volatile long counts[];
-	public static volatile long oldcounts[];
-	public static volatile long times[];
-	public static volatile Thread counterThread = null;
-
+	protected AtomicLong totalOps;
+	protected AtomicLong createOps;
+	protected AtomicLong lookupOps;
+	protected AtomicLong setOps;
+	protected AtomicLong removeOps;
+	protected AtomicLong renameOps;
+	protected AtomicLong getOps;
+	protected AtomicLong locationOps;
+	protected AtomicLong errorOps;
 
 	public DaRPCServiceDispatcherStats(RpcNameNodeService service) {
 		super(service);
-		
-		counts = new long[maxNrThreads * 8]; //use every 8th element to avoid false cache sharing
-		oldcounts = new long[maxNrThreads * 8];
-		times = new long[maxNrThreads * 8];
-		long currTime = System.currentTimeMillis();
-		for (int i = 0; i < times.length; i++) {
-			times[i] = currTime;
-		}
-		if (counterThread == null) {
-			counterThread = new CounterThread();
-			counterThread.start();
-		}
 
+		LOG.info("Enabled statistics.");
+
+		this.totalOps = new AtomicLong(0);
+		this.createOps = new AtomicLong(0);
+		this.lookupOps = new AtomicLong(0);
+		this.setOps = new AtomicLong(0);
+		this.removeOps = new AtomicLong(0);
+		this.renameOps = new AtomicLong(0);
+		this.getOps = new AtomicLong(0);
+		this.locationOps = new AtomicLong(0);
+		this.errorOps = new AtomicLong(0);
 	}
-	
+
 	public void processServerEvent(DaRPCServerEvent<DaRPCNameNodeRequest, DaRPCNameNodeResponse> event) {
 		super.processServerEvent(event);
 		DaRPCNameNodeRequest request = event.getReceiveMessage();
@@ -92,7 +70,7 @@ public class DaRPCServiceDispatcherStats extends DaRPCServiceDispatcher {
 			case RpcProtocol.CMD_CREATE_FILE:
 				this.totalOps.incrementAndGet();
 				this.createOps.incrementAndGet();
-				break;			
+				break;
 			case RpcProtocol.CMD_GET_FILE:
 				this.totalOps.incrementAndGet();
 				this.lookupOps.incrementAndGet();
@@ -104,11 +82,11 @@ public class DaRPCServiceDispatcherStats extends DaRPCServiceDispatcher {
 			case RpcProtocol.CMD_REMOVE_FILE:
 				this.totalOps.incrementAndGet();
 				this.removeOps.incrementAndGet();
-				break;				
+				break;
 			case RpcProtocol.CMD_RENAME_FILE:
 				this.totalOps.incrementAndGet();
 				this.renameOps.incrementAndGet();
-				break;		
+				break;
 			case RpcProtocol.CMD_GET_BLOCK:
 				this.totalOps.incrementAndGet();
 				this.getOps.incrementAndGet();
@@ -116,20 +94,31 @@ public class DaRPCServiceDispatcherStats extends DaRPCServiceDispatcher {
 			case RpcProtocol.CMD_GET_LOCATION:
 				this.totalOps.incrementAndGet();
 				this.locationOps.incrementAndGet();
-				break;				
+				break;
 			case RpcProtocol.CMD_SET_BLOCK:
 				break;
 			case RpcProtocol.CMD_GET_DATANODE:
-				break;					
+				break;
 			case RpcProtocol.CMD_DUMP_NAMENODE:
-				break;			
+				break;
 			case RpcProtocol.CMD_PING_NAMENODE:
 				break;
 			default:
 		}
+	}
+	public short stats(RpcRequestMessage.PingNameNodeReq request, RpcResponseMessage.PingNameNodeRes response, RpcNameNodeState errorState) throws Exception {
+		short err = super.stats(request, response, errorState);
 
-		//use every 8th element to avoid false cache sharing
-		int myID = (int)Thread.currentThread().getId() * 8;
-		counts[myID]++;
+		LOG.info("totalOps " + totalOps.get());
+		LOG.info("errorOps " + errorOps.get());
+		LOG.info("createOps " + createOps.get());
+		LOG.info("lookupOps " + lookupOps.get());
+		LOG.info("setOps " + setOps.get());
+		LOG.info("removeOps " + removeOps.get());
+		LOG.info("renameOps " + renameOps.get());
+		LOG.info("getOps " + getOps.get());
+		LOG.info("locationOps " + locationOps.get());
+
+		return err;
 	}
 }

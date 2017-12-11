@@ -10,32 +10,31 @@ import com.ibm.crail.utils.CrailUtils;
 import com.ibm.darpc.DaRPCClientEndpoint;
 import com.ibm.darpc.DaRPCClientGroup;
 import com.ibm.darpc.DaRPCMemPool;
+import com.ibm.darpc.DaRPCMemPoolImplSimple;
 
 public class DaRPCNameNodeClient implements RpcClient {
 	private static final Logger LOG = CrailUtils.getLogger();
-	
+
 	private DaRPCNameNodeProtocol namenodeProtocol;
 	private DaRPCClientGroup<DaRPCNameNodeRequest, DaRPCNameNodeResponse> namenodeClientGroup;
-	
+
 	public DaRPCNameNodeClient(){
 		this.namenodeProtocol = null;
 		this.namenodeClientGroup = null;
 	}
-	
+
 	public void init(CrailConfiguration conf, String[] args) throws Exception{
 		DaRPCConstants.updateConstants(conf);
 		DaRPCConstants.verify();
-		DaRPCMemPool memPool = new DaRPCMemPool(DaRPCConstants.NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH,
-				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_HUGEPAGELIMIT,
+		this.namenodeProtocol = new DaRPCNameNodeProtocol();
+		DaRPCMemPool memPool = new DaRPCMemPoolImplSimple(
 			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOCSZ,
-			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_MINALLOCSZ,
 			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT
 			    );
-		this.namenodeProtocol = new DaRPCNameNodeProtocol();
 		this.namenodeClientGroup = DaRPCClientGroup.createClientGroup(namenodeProtocol, memPool, 100, DaRPCConstants.NAMENODE_DARPC_MAXINLINE, DaRPCConstants.NAMENODE_DARPC_RECVQUEUE, DaRPCConstants.NAMENODE_DARPC_SENDQUEUE);
 		LOG.info("rpc group started, recvQueue " + namenodeClientGroup.recvQueueSize());
 	}
-	
+
 	public void printConf(Logger logger){
 		DaRPCConstants.printConf(logger);
 	}
@@ -48,7 +47,7 @@ public class DaRPCNameNodeClient implements RpcClient {
 		namenodeEndopoint.connect(uri);
 		DaRPCNameNodeConnection connection = new DaRPCNameNodeConnection(namenodeEndopoint);
 		return connection;
-		
+
 	}
 
 	@Override
