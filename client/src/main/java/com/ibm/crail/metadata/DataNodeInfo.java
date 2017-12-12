@@ -108,11 +108,16 @@ public class DataNodeInfo {
 	public int getStorageClass() {
 		return storageClass;
 	}	
+
+	public static long calcKey (byte[] ip, int portNum) {
+		int a = java.util.Arrays.hashCode(ip);
+		long localKey = (((long)a) << 32) | (portNum & 0xffffffffL);
+		return localKey;
+	}
 	
-	public long key(){
-		if (key == 0){
-			int a = java.util.Arrays.hashCode(ipAddress);
-			key = (((long)a) << 32) | (port & 0xffffffffL);
+	public long key() {
+		if (key == 0) {
+			key = calcKey(ipAddress, port);
 		}
 		return key;
 	}
