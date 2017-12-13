@@ -65,7 +65,7 @@ public class DaRPCConstants {
 	public static int NAMENODE_DARPC_MEMPOOL_ALLOCSZ = 16 * 1024 * 1024; //16MB
 
 	public static final String NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY = "crail.namenode.darpc.mempool.alignment";
-	public static int NAMENODE_DARPC_MEMPOOL_ALIGNMENT = 4 * 1024; //4kB
+	public static int NAMENODE_DARPC_MEMPOOL_ALIGNMENT = 0;
 
 	public static void updateConstants(CrailConfiguration conf){
 		if (conf.get(NAMENODE_DARPC_POLLING_KEY) != null) {
