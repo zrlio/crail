@@ -8,7 +8,7 @@ import com.ibm.crail.rpc.RpcNameNodeService;
 import com.ibm.crail.rpc.RpcServer;
 import com.ibm.crail.utils.CrailUtils;
 import com.ibm.darpc.DaRPCMemPool;
-import com.ibm.darpc.DaRPCMemPoolImplSimple;
+import com.ibm.darpc.DaRPCMemPoolImpl;
 import com.ibm.darpc.DaRPCServerEndpoint;
 import com.ibm.darpc.DaRPCServerGroup;
 import com.ibm.disni.rdma.RdmaServerEndpoint;
@@ -30,10 +30,11 @@ public class DaRPCNameNodeServer extends RpcServer {
 		DaRPCConstants.updateConstants(conf);
 		DaRPCConstants.verify();
 
-		DaRPCMemPool memPool = new DaRPCMemPoolImplSimple(
-			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOCSZ,
-			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT
-			    );
+		DaRPCMemPool memPool = new DaRPCMemPoolImpl(
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH,
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOCSZ,
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT
+				);
 		String _clusterAffinities[] = DaRPCConstants.NAMENODE_DARPC_AFFINITY.split(",");
 		long clusterAffinities[] = new long[_clusterAffinities.length];
 		for (int i = 0; i < clusterAffinities.length; i++){

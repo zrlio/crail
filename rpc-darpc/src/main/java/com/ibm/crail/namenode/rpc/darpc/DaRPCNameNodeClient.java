@@ -10,7 +10,7 @@ import com.ibm.crail.utils.CrailUtils;
 import com.ibm.darpc.DaRPCClientEndpoint;
 import com.ibm.darpc.DaRPCClientGroup;
 import com.ibm.darpc.DaRPCMemPool;
-import com.ibm.darpc.DaRPCMemPoolImplSimple;
+import com.ibm.darpc.DaRPCMemPoolImpl;
 
 public class DaRPCNameNodeClient implements RpcClient {
 	private static final Logger LOG = CrailUtils.getLogger();
@@ -27,10 +27,11 @@ public class DaRPCNameNodeClient implements RpcClient {
 		DaRPCConstants.updateConstants(conf);
 		DaRPCConstants.verify();
 		this.namenodeProtocol = new DaRPCNameNodeProtocol();
-		DaRPCMemPool memPool = new DaRPCMemPoolImplSimple(
-			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOCSZ,
-			    DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT
-			    );
+		DaRPCMemPool memPool = new DaRPCMemPoolImpl(
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH,
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOCSZ,
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT
+				);
 		this.namenodeClientGroup = DaRPCClientGroup.createClientGroup(namenodeProtocol, memPool, 100, DaRPCConstants.NAMENODE_DARPC_MAXINLINE, DaRPCConstants.NAMENODE_DARPC_RECVQUEUE, DaRPCConstants.NAMENODE_DARPC_SENDQUEUE);
 		LOG.info("rpc group started, recvQueue " + namenodeClientGroup.recvQueueSize());
 	}
