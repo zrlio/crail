@@ -42,7 +42,7 @@ public class DaRPCNameNodeServer extends RpcServer {
 			clusterAffinities[i] = 1L << affinity;
 		}
 		DaRPCServiceDispatcher darpcService = new DaRPCServiceDispatcher(service);
-		if (!DaRPCConstants.NAMENODE_DARPC_STATS.isEmpty()) {
+		if (DaRPCConstants.NAMENODE_DARPC_STATS) {
 			DaRPCServiceDispatcherStats stats = new DaRPCServiceDispatcherStats(service);
 			darpcService = stats;
 		}

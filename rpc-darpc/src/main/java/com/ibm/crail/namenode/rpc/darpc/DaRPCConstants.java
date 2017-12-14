@@ -56,7 +56,7 @@ public class DaRPCConstants {
 	public static int NAMENODE_DARPC_CLUSTERSIZE = 128;
 
 	public static final String NAMENODE_DARPC_STATS_KEY = "crail.namenode.darpc.stats";
-	public static String NAMENODE_DARPC_STATS = "";
+	public static boolean NAMENODE_DARPC_STATS = false;
 
 	public static final String NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH_KEY = "crail.namenode.darpc.mempool.hugepagepath";
 	public static String NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH = null;
@@ -93,7 +93,7 @@ public class DaRPCConstants {
 			NAMENODE_DARPC_CLUSTERSIZE = Integer.parseInt(conf.get(NAMENODE_DARPC_CLUSTERSIZE_KEY));
 		}
 		if (conf.get(NAMENODE_DARPC_STATS_KEY) != null) {
-			NAMENODE_DARPC_STATS = conf.get(NAMENODE_DARPC_STATS_KEY);
+			NAMENODE_DARPC_STATS = Boolean.parseBoolean(conf.get(NAMENODE_DARPC_STATS_KEY));
 		}
 		if (conf.get(NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH_KEY) != null) {
 			NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH = conf.get(NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH_KEY);
