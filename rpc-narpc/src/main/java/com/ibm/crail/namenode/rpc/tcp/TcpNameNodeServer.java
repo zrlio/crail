@@ -36,12 +36,11 @@ import com.ibm.narpc.NaRPCServerGroup;
 
 public class TcpNameNodeServer extends RpcServer {
 	private static final Logger LOG = CrailUtils.getLogger();
-	
+
 	private TcpRpcDispatcher dispatcher;
 	private NaRPCServerGroup<TcpNameNodeRequest, TcpNameNodeResponse> serverGroup;
 	private NaRPCServerEndpoint<TcpNameNodeRequest, TcpNameNodeResponse> serverEndpoint;
-	
-	
+
 	public TcpNameNodeServer(RpcNameNodeService service) throws IOException {
 		this.dispatcher = new TcpRpcDispatcher(service);
 	}
@@ -49,8 +48,10 @@ public class TcpNameNodeServer extends RpcServer {
 	@Override
 	public void init(CrailConfiguration conf, String[] arg1) throws Exception {
 		TcpRpcConstants.updateConstants(conf);
-		TcpRpcConstants.verify();  		
-		this.serverGroup = new NaRPCServerGroup<TcpNameNodeRequest, TcpNameNodeResponse>(dispatcher, TcpRpcConstants.NAMENODE_TCP_QUEUEDEPTH, TcpRpcConstants.NAMENODE_TCP_MESSAGESIZE, true);
+		TcpRpcConstants.verify();
+		this.serverGroup = new NaRPCServerGroup<TcpNameNodeRequest, TcpNameNodeResponse>(
+				dispatcher, TcpRpcConstants.NAMENODE_TCP_QUEUEDEPTH,
+				TcpRpcConstants.NAMENODE_TCP_MESSAGESIZE, true);
 		this.serverEndpoint = serverGroup.createServerEndpoint();
 		InetSocketAddress inetSocketAddress = CrailUtils.getNameNodeAddress();
 		serverEndpoint.bind(inetSocketAddress);
@@ -61,16 +62,15 @@ public class TcpNameNodeServer extends RpcServer {
 		TcpRpcConstants.printConf(logger);
 	}
 
-    public void run(){
-        try {
-			while(true){
+	public void run() {
+		try {
+			while (true) {
 				NaRPCServerChannel endpoint = serverEndpoint.accept();
 				LOG.info("new connection from " + endpoint.address());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        
-    }
 
+	}
 }

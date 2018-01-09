@@ -62,7 +62,7 @@ public class TcpStorageFuture implements StorageFuture, StorageResult {
 	@Override
 	public StorageResult get(long timeout, TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
-		future.get();
+		future.get(timeout, unit);
 		return this;
 	}
 

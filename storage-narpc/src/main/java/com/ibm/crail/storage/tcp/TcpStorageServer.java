@@ -31,6 +31,7 @@ import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -84,7 +85,7 @@ public class TcpStorageServer implements Runnable, StorageServer, NaRPCService<T
 		StorageResource resource = null;
 		if (keys < regions){
 			int fileId = (int) keys++;
-			String dataFilePath = dataDirPath + "/" + fileId;
+			String dataFilePath = Paths.get(dataDirPath, Integer.toString(fileId)).toString();
 			RandomAccessFile dataFile = new RandomAccessFile(dataFilePath, "rw");
 			FileChannel dataChannel = dataFile.getChannel();
 			ByteBuffer buffer = dataChannel.map(MapMode.READ_WRITE, 0, TcpStorageConstants.STORAGE_TCP_ALLOCATION_SIZE);
@@ -185,10 +186,6 @@ public class TcpStorageServer implements Runnable, StorageServer, NaRPCService<T
 	
 	public static String getDatanodeDirectory(InetSocketAddress inetAddress){
 		String address = inetAddress.getAddress().toString();
-		if (address.startsWith("/")){
-			return TcpStorageConstants.STORAGE_TCP_DATA_PATH + address + "-"  + inetAddress.getPort();
-		} else {
-			return TcpStorageConstants.STORAGE_TCP_DATA_PATH + address + "-"  + inetAddress.getPort();
-		}
+		return TcpStorageConstants.STORAGE_TCP_DATA_PATH + address + "-"  + inetAddress.getPort();
 	}	
 }

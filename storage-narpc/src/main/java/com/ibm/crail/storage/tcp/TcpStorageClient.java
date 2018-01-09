@@ -45,7 +45,8 @@ public class TcpStorageClient implements StorageClient {
 	}
 
 	@Override
-	public void printConf(Logger arg0) {
+	public void printConf(Logger logger) {
+		TcpStorageConstants.printConf(logger);
 	}
 
 	@Override

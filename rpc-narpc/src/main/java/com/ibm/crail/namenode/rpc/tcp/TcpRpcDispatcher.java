@@ -60,10 +60,10 @@ public class TcpRpcDispatcher implements NaRPCService<TcpNameNodeRequest, TcpNam
 				error = service.setFile(request.setFile(), response.getVoid(), response);
 				break;
 			case RpcProtocol.CMD_REMOVE_FILE:
-				error = service.removeFile(request.removeFile(), response.delFile(), response);
+				error = service.removeFile(request.removeFile(), response.removeFile(), response);
 				break;				
 			case RpcProtocol.CMD_RENAME_FILE:
-				error = service.renameFile(request.renameFile(), response.getRename(), response);
+				error = service.renameFile(request.renameFile(), response.renameFile(), response);
 				break;		
 			case RpcProtocol.CMD_GET_BLOCK:
 				error = service.getBlock(request.getBlock(), response.getBlock(), response);

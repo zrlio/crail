@@ -108,53 +108,6 @@ public class TcpNameNodeResponse extends RpcResponseMessage implements RpcNameNo
 	
 	public void setType(short type) throws Exception {
 		this.type = type;
-		switch(type){
-		case RpcProtocol.RES_VOID:
-			if (voidRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;
-		case RpcProtocol.RES_CREATE_FILE:
-			if (createFileRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;			
-		case RpcProtocol.RES_GET_FILE:
-			if (getFileRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;
-		case RpcProtocol.RES_DELETE_FILE:
-			if (delFileRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;			
-		case RpcProtocol.RES_RENAME_FILE:
-			if (renameRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;			
-		case RpcProtocol.RES_GET_BLOCK:
-			if (getBlockRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;
-		case RpcProtocol.RES_GET_LOCATION:
-			if (getLocationRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;			
-		case RpcProtocol.RES_GET_DATANODE:
-			if (getDataNodeRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;			
-		case RpcProtocol.RES_PING_NAMENODE:
-			if (pingNameNodeRes == null){
-				throw new Exception("Response type not set");
-			}
-			break;
-		}		
 	}	
 
 	public int size(){
@@ -267,11 +220,11 @@ public class TcpNameNodeResponse extends RpcResponseMessage implements RpcNameNo
 		return getFileRes;
 	}
 	
-	public RpcResponseMessage.DeleteFileRes delFile() {
+	public RpcResponseMessage.DeleteFileRes removeFile() {
 		return delFileRes;
 	}	
 	
-	public RpcResponseMessage.RenameRes getRename() {
+	public RpcResponseMessage.RenameRes renameFile() {
 		return renameRes;
 	}	
 

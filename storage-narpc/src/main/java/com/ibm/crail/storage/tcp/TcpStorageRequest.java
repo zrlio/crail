@@ -28,7 +28,8 @@ import com.ibm.crail.conf.CrailConstants;
 import com.ibm.narpc.NaRPCMessage;
 
 public class TcpStorageRequest implements NaRPCMessage {
-	public static final int CSIZE = 4 + Math.max(WriteRequest.CSIZE, ReadRequest.CSIZE);
+	public static final int HEADER_SIZE = Integer.BYTES;
+	public static final int CSIZE = HEADER_SIZE + Math.max(WriteRequest.CSIZE, ReadRequest.CSIZE);
 	
 	private int type;
 	private WriteRequest writeRequest;
@@ -70,7 +71,7 @@ public class TcpStorageRequest implements NaRPCMessage {
 	@Override
 	public int write(ByteBuffer buffer) throws IOException {
 		buffer.putInt(type);
-		int written = 4;
+		int written = HEADER_SIZE;
 		if (type == TcpStorageProtocol.REQ_WRITE){
 			written += writeRequest.write(buffer);
 		} else if (type == TcpStorageProtocol.REQ_READ){
@@ -80,7 +81,8 @@ public class TcpStorageRequest implements NaRPCMessage {
 	}
 	
 	public static class WriteRequest {
-		public static final int CSIZE = 4 + 8 + 4 + 4 + (int) CrailConstants.BLOCK_SIZE;
+		public static final int FIELDS_SIZE = Integer.BYTES + Long.BYTES + Integer.BYTES;
+		public static final int CSIZE = FIELDS_SIZE + Integer.BYTES + (int) CrailConstants.BLOCK_SIZE;
 		
 		private int key;
 		private long address;
@@ -134,14 +136,14 @@ public class TcpStorageRequest implements NaRPCMessage {
 			buffer.putLong(address);
 			buffer.putInt(length);
 			buffer.putInt(data.remaining());
-			int written = 4 + 8 + 4 + 4 + data.remaining(); 
+			int written = FIELDS_SIZE + Integer.BYTES + data.remaining(); 
 			buffer.put(data);
 			return written;
 		}		
 	}
 	
 	public static class ReadRequest {
-		public static final int CSIZE = 4 + 8 + 4;
+		public static final int CSIZE = Integer.BYTES + Long.BYTES + Integer.BYTES;
 		
 		private int key;
 		private long address;
