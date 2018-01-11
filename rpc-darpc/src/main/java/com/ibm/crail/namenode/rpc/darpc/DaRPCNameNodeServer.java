@@ -30,10 +30,11 @@ public class DaRPCNameNodeServer extends RpcServer {
 		DaRPCConstants.updateConstants(conf);
 		DaRPCConstants.verify();
 
-		DaRPCMemPool memPool = new DaRPCMemPoolImpl(
+		DaRPCMemPool<DaRPCServerEndpoint<DaRPCNameNodeRequest, DaRPCNameNodeResponse>, DaRPCNameNodeRequest, DaRPCNameNodeResponse> memPool = new DaRPCMemPoolImpl<DaRPCServerEndpoint<DaRPCNameNodeRequest, DaRPCNameNodeResponse>, DaRPCNameNodeRequest, DaRPCNameNodeResponse>(
 				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH,
 				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOCSZ,
-				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT,
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT
 				);
 		String _clusterAffinities[] = DaRPCConstants.NAMENODE_DARPC_AFFINITY.split(",");
 		long clusterAffinities[] = new long[_clusterAffinities.length];

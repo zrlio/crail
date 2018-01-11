@@ -27,10 +27,11 @@ public class DaRPCNameNodeClient implements RpcClient {
 		DaRPCConstants.updateConstants(conf);
 		DaRPCConstants.verify();
 		this.namenodeProtocol = new DaRPCNameNodeProtocol();
-		DaRPCMemPool memPool = new DaRPCMemPoolImpl(
+		DaRPCMemPool<DaRPCClientEndpoint<DaRPCNameNodeRequest, DaRPCNameNodeResponse>, DaRPCNameNodeRequest, DaRPCNameNodeResponse> memPool = new DaRPCMemPoolImpl<DaRPCClientEndpoint<DaRPCNameNodeRequest, DaRPCNameNodeResponse>, DaRPCNameNodeRequest, DaRPCNameNodeResponse>(
 				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH,
 				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOCSZ,
-				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALIGNMENT,
+				DaRPCConstants.NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT
 				);
 		this.namenodeClientGroup = DaRPCClientGroup.createClientGroup(namenodeProtocol, memPool, 100, DaRPCConstants.NAMENODE_DARPC_MAXINLINE, DaRPCConstants.NAMENODE_DARPC_RECVQUEUE, DaRPCConstants.NAMENODE_DARPC_SENDQUEUE);
 		LOG.info("rpc group started, recvQueue " + namenodeClientGroup.recvQueueSize());

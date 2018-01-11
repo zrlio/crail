@@ -67,6 +67,9 @@ public class DaRPCConstants {
 	public static final String NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY = "crail.namenode.darpc.mempool.alignment";
 	public static int NAMENODE_DARPC_MEMPOOL_ALIGNMENT = 0;
 
+	public static final String NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT_KEY = "crail.namenode.darpc.mempool.allocationlimit";
+	public static int NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT = 16 * NAMENODE_DARPC_MEMPOOL_ALLOCSZ; //256MB;
+
 	public static void updateConstants(CrailConfiguration conf){
 		if (conf.get(NAMENODE_DARPC_POLLING_KEY) != null) {
 			NAMENODE_DARPC_POLLING = conf.getBoolean(NAMENODE_DARPC_POLLING_KEY, false);
@@ -104,6 +107,9 @@ public class DaRPCConstants {
 		if (conf.get(NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY) != null) {
 			NAMENODE_DARPC_MEMPOOL_ALIGNMENT = Integer.parseInt(conf.get(NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY));
 		}
+		if (conf.get(NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT_KEY) != null) {
+			NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT = Integer.parseInt(conf.get(NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT_KEY));
+		}
 	}
 
 	public static void verify() throws IOException {
@@ -125,5 +131,6 @@ public class DaRPCConstants {
 		LOG.info(NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH_KEY + " " + NAMENODE_DARPC_MEMPOOL_HUGEPAGEPATH);
 		LOG.info(NAMENODE_DARPC_MEMPOOL_ALLOCSZ_KEY + " " + NAMENODE_DARPC_MEMPOOL_ALLOCSZ);
 		LOG.info(NAMENODE_DARPC_MEMPOOL_ALIGNMENT_KEY + " " + NAMENODE_DARPC_MEMPOOL_ALIGNMENT);
+		LOG.info(NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT_KEY + " " + NAMENODE_DARPC_MEMPOOL_ALLOC_LIMIT);
 	}
 }
