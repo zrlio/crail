@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -739,6 +740,110 @@ public class CrailBenchmark {
 		fs.getStatistics().print("close");
 	}
 	
+	void getMultiFile(String filename, int loop) throws Exception, InterruptedException {
+		final int nrfiles = 16;
+		final int filenamesz = 32;
+
+		System.out.println("getMultiFile, path " + filename);
+
+		//create some files (every instance will create files, but that is ok)
+		String[] chars = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+				"o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+				"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+		};
+
+		// Remember my own generated file names
+		String[] fileNames = new String[nrfiles];
+		for (int i = 0; i < nrfiles; i++) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(filename);
+			for (int j = 0; j < filenamesz; j++) {
+				sb.append(chars[ThreadLocalRandom.current().nextInt(0, chars.length)]);
+			}
+			sb.append(".bnc");
+			String file = sb.toString();
+			fs.create(file, CrailNodeType.DATAFILE, CrailStorageClass.DEFAULT, CrailLocationClass.DEFAULT).get().syncDir();
+			String fileNameOnly = file.substring(1);
+			fileNames[i] = file;
+		}
+
+		//benchmark
+		System.out.println("starting benchmark...");
+		fs.getStatistics().reset();
+		double ops = 0;
+		long start = System.currentTimeMillis();
+		while (ops < loop) {
+			ops = ops + 1.0;
+			fs.lookup(fileNames[(int)ops % fileNames.length]).get().asFile();
+		}
+		long end = System.currentTimeMillis();
+		double executionTime = ((double) (end - start)) / 1000.0;
+		double latency = 0.0;
+		if (executionTime > 0) {
+			latency = 1000000.0 * executionTime / ops;
+		}
+		System.out.println("execution time " + executionTime);
+		System.out.println("ops " + ops);
+		System.out.println("latency " + latency);
+
+		fs.getStatistics().print("close");
+		fs.close();
+	}
+
+	void getMultiFileAsync(String filename, int loop, int batch) throws Exception, InterruptedException {
+		final int nrfiles = 16;
+		final int filenamesz = 32;
+
+		System.out.println("getMultiFileAsync, path " + filename  + ", loop " + loop + ", batch " + batch);
+
+		//create some files (every instance will create files, but that is ok)
+		String[] chars = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+				"o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+				"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+		};
+
+		// Remember my own generated file names
+		String[] fileNames = new String[nrfiles];
+		for (int i = 0; i < nrfiles; i++) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(filename);
+			for (int j = 0; j < filenamesz; j++) {
+				sb.append(chars[ThreadLocalRandom.current().nextInt(0, chars.length)]);
+			}
+			sb.append(".bnc");
+			String file = sb.toString();
+			fs.create(file, CrailNodeType.DATAFILE, CrailStorageClass.DEFAULT, CrailLocationClass.DEFAULT).get().syncDir();
+			String fileNameOnly = file.substring(1);
+			fileNames[i] = file;
+		}
+
+		System.out.println("getMultiFileAsync, filename " + filename  + ", loop " + loop + ", batch " + batch);
+
+		//benchmark
+		System.out.println("starting benchmark...");
+		fs.getStatistics().reset();
+		LinkedBlockingQueue<Future<CrailNode>> fileQueue = new LinkedBlockingQueue<Future<CrailNode>>();
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < loop; i++){
+			//single operation == loop
+			for (int j = 0; j < batch; j++){
+				Future<CrailNode> future = fs.lookup(fileNames[(loop + i) % fileNames.length]);
+				fileQueue.add(future);
+			}
+			for (int j = 0; j < batch; j++){
+				Future<CrailNode> future = fileQueue.poll();
+				future.get();
+			}
+		}
+		long end = System.currentTimeMillis();
+		double executionTime = ((double) (end - start));
+		double latency = executionTime*1000.0 / ((double) batch);
+		System.out.println("execution time [ms] " + executionTime);
+		System.out.println("latency [us] " + latency);
+
+		fs.getStatistics().print("close");
+	}
+
 	void enumerateDir(String filename, int loop) throws Exception {
 		System.out.println("reading enumarate dir, path " + filename);
 		
@@ -999,7 +1104,8 @@ public class CrailBenchmark {
 		boolean useBuffered = true;
 		
 		String benchmarkTypes = "write|writeAsync|readSequential|readRandom|readSequentialAsync|readMultiStream|"
-				+ "createFile|createFileAsync|createMultiFile|getKey|getFile|getFileAsync|enumerateDir|browseDir|"
+				+ "createFile|createFileAsync|createMultiFile|getKey|getFile|getFileAsync|getMultiFile"
+				+ "getMultiFileAsync|enumerateDir|browseDir|"
 				+ "writeInt|readInt|seekInt|readMultiStreamInt|printLocationclass";
 		Option typeOption = Option.builder("t").desc("type of experiment [" + benchmarkTypes + "]").hasArg().build();
 		Option fileOption = Option.builder("f").desc("filename").hasArg().build();
@@ -1130,6 +1236,14 @@ public class CrailBenchmark {
 		} else if (type.equals("getFileAsync")){
 			benchmark.open();
 			benchmark.getFileAsync(filename, loop, batch);
+			benchmark.close();
+		} else if (type.equals("getMultiFile")){
+			benchmark.open();
+			benchmark.getMultiFile(filename, loop);
+			benchmark.close();
+		} else if (type.equals("getMultiFileAsync")){
+			benchmark.open();
+			benchmark.getMultiFileAsync(filename, loop, batch);
 			benchmark.close();
 		} else if (type.equalsIgnoreCase("enumerateDir")) {
 			benchmark.open();
